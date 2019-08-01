@@ -1,0 +1,24 @@
+{
+  "name": "task-module",
+  "version": "1.0.0",
+  "description": "Lirten-Task for a core-system",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Streakfull/Lirten-Task.git"
+  },
+  "author": "Youssef Sherif",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Streakfull/Lirten-Task/issues"
+  },
+  "homepage": "https://github.com/Streakfull/Lirten-Task#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  }
+}

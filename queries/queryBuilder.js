@@ -1,4 +1,4 @@
-// Error are not handled
+// Errors are not handled
 const {
   extractColumns,
   extractConditions,
