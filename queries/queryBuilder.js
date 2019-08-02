@@ -29,7 +29,7 @@ const generateFind = (tables, conditions = {}, columns = {}) => {
   const conditionString = extractConditions(conditions)
   const query = `SELECT ${columnString} FROM ${table} 
   ${joinString || conditionString}
-  ${joinString && conditionString} `
+  ${joinString ? conditionString : ''} `
   return query
 }
 // Example Run
