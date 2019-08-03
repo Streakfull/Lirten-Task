@@ -69,5 +69,18 @@ const generateUpdate = (tables, columns = {}, conditions = {}) => {
   RETURNING *`
   return query
 }
+const generateDelete = (tables, conditions) => {
+  const { table } = tables
+  const conditionString = extractConditions(conditions)
+  const query = `DELETE FROM ${table}
+  ${conditionString}
+  RETURNING *`
+  return query
+}
 
-module.exports = { generateFind, generateCreate, generateUpdate }
+module.exports = {
+  generateFind,
+  generateCreate,
+  generateUpdate,
+  generateDelete
+}

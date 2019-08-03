@@ -1,7 +1,8 @@
 const {
   generateFind,
   generateCreate,
-  generateUpdate
+  generateUpdate,
+  generateDelete
 } = require('./queryBuilder')
 
 const { pgClient } = require('../config/DBConfig')
@@ -12,7 +13,7 @@ const find = async (tables, conditions, columns, pagination) => {
   const { rows } = await pgClient.query(query)
   return rows
 }
-// id flag to specify whether to return the id or not
+
 const create = async (tables, columns) => {
   try {
     const query = generateCreate(tables, columns)
@@ -42,5 +43,43 @@ const updateMany = async (tables, columns, conditions) => {
     return false
   }
 }
+const createMany = async (tables, columns) => {
+  try {
+    // refactor to reduce
+    let query = ''
+    columns.forEach(column => {
+      query = `${query}
+            ${generateCreate(tables, column)}`
+    })
+    await pgClient.query('BEGIN')
+    console.log(`EXECUTING ${query}`)
+    const { rows } = await pgClient.query(query)
+    await pgClient.query('COMMIT')
+    return rows
+  } catch (e) {
+    console.log('Something went wrong,committing rollback')
+    await pgClient.query('ROLLBACK')
+    return false
+  }
+}
+// array of condition objects
+const deleteMany = async (tables, conditions) => {
+  try {
+    let query = ''
+    conditions.forEach(condition => {
+      query = `${query}
+      ${generateDelete(tables, condition)}`
+    })
+    await pgClient.query('BEGIN')
+    console.log(`EXECUTING ${query}`)
+    const { rows } = await pgClient.query(query)
+    await pgClient.query('COMMIT')
+    return rows
+  } catch (e) {
+    console.log('Something went wrong,committing rollback')
+    await pgClient.query('ROLLBACK')
+    return false
+  }
+}
 
-module.exports = { find, create, updateMany }
+module.exports = { find, create, updateMany, createMany, deleteMany }

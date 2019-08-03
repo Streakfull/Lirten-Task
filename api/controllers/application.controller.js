@@ -69,6 +69,7 @@ const accept = async (req, res) => {
         'This task has an accepted applicant'
       )
     const newApp = await acceptApplication(userId, taskId)
+    // end task here (ACID)
     return send(newApp, req, res)
   } catch (error) {
     return errorCreator(req, res)
