@@ -10,6 +10,7 @@ const app = express()
 const users = require('./api/routes/user.router')
 const tasks = require('./api/routes/task.router')
 const applications = require('./api/routes/application.router')
+const submissions = require('./api/routes/submission.router')
 
 // middleware goes here
 app.use(express.json())
@@ -21,6 +22,7 @@ app.use(cors())
 app.use('/api/v1/users', users)
 app.use('/api/v1/tasks', tasks)
 app.use('/api/v1/applications', applications)
+app.use('/api/v1/submissions', submissions)
 
 // Tables and populate
 // pgClient.query(tableCreation)

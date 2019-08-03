@@ -37,7 +37,7 @@ CREATE TABLE submission(
  user_id INT,
  task_id INT,
  text VARCHAR(255),
- is_confirmd BOOLEAN,
+ is_confirmed BOOLEAN DEFAULT FALSE,
  frozen BOOLEAN DEFAULT false,
  FOREIGN KEY (user_id) REFERENCES app_user(id),
  FOREIGN KEY (task_id) REFERENCES task(id)

@@ -1,3 +1,5 @@
+const moment = require('moment')
+
 const taskTable = 'task'
 const { find, create, updateMany } = require('../../queries/queryExecutioner')
 
@@ -46,6 +48,15 @@ const freezeTask = async (taskId, frozen) => {
   return task
 }
 
+const endTask = async taskId => {
+  const task = await updateMany(
+    { table: taskTable },
+    { end_date: moment().format() },
+    { id: taskId }
+  )
+  return task
+}
+
 module.exports = {
   createTask,
   findAllTasks,
@@ -54,5 +65,6 @@ module.exports = {
   checkEditFrozen,
   editTask,
   checkStatus,
-  freezeTask
+  freezeTask,
+  endTask
 }
