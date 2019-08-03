@@ -12,6 +12,8 @@ const suspended = 'E005'
 const unsuspended = 'E006'
 // task edit frozen
 const editFrozen = 'E007'
+// task already has this status
+const wrongStatus = 'E008'
 // task not edit frozen
 const notEditFrozen = 'E009'
 // task has an accepted app
@@ -26,8 +28,10 @@ const meetingConfirmed = 'E013'
 const unrelatedTask = 'E014'
 // user is not invited to the meeting
 const unInvitedUser = 'E015'
-//Unknown error
+// Unknown error
 const unknown = 'E00X'
+// user already applied
+const alreadyApplied = 'E016'
 
 module.exports = {
   emailExists,
@@ -37,6 +41,7 @@ module.exports = {
   suspended,
   unsuspended,
   editFrozen,
+  wrongStatus,
   notEditFrozen,
   alreadyAccepted,
   unrelatedUserTask,
@@ -44,5 +49,6 @@ module.exports = {
   meetingConfirmed,
   unrelatedTask,
   unInvitedUser,
-  unknown
+  unknown,
+  alreadyApplied
 }

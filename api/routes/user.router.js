@@ -1,6 +1,4 @@
 const express = require('express')
-
-const router = express.Router()
 const {
   sign_up,
   log_in,
@@ -9,6 +7,8 @@ const {
   view_specific,
   update
 } = require('../controllers/user.controller')
+
+const router = express.Router()
 
 router.post('/signup', sign_up)
 
