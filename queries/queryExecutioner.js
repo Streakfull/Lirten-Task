@@ -6,12 +6,13 @@ const {
 
 const { pgClient } = require('../config/DBConfig')
 
-const find = async (tables, conditions, columns) => {
-  const query = generateFind(tables, conditions, columns)
+const find = async (tables, conditions, columns, pagination) => {
+  const query = generateFind(tables, conditions, columns, pagination)
   console.log(`EXECUTING ${query}`)
   const { rows } = await pgClient.query(query)
   return rows
 }
+// id flag to specify whether to return the id or not
 const create = async (tables, columns) => {
   try {
     const query = generateCreate(tables, columns)

@@ -69,11 +69,19 @@ const extractNewValues = columns => {
   }, '')
   return valueString
 }
+const extractPagination = pagination => {
+  if (!pagination) return ''
+  const { limit, page } = pagination
+  console.log(limit, page, 'HIIII')
+  const offset = limit * page
+  return `OFFSET ${offset} LIMIT ${limit}`
+}
 
 module.exports = {
   extractColumns,
   extractConditions,
   extractJoin,
   extractValues,
-  extractNewValues
+  extractNewValues,
+  extractPagination
 }

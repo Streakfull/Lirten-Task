@@ -26,6 +26,8 @@ const meetingConfirmed = 'E013'
 const unrelatedTask = 'E014'
 // user is not invited to the meeting
 const unInvitedUser = 'E015'
+//Unknown error
+const unknown = 'E00X'
 
 module.exports = {
   emailExists,
@@ -41,5 +43,6 @@ module.exports = {
   unrelatedUserMeeting,
   meetingConfirmed,
   unrelatedTask,
-  unInvitedUser
+  unInvitedUser,
+  unknown
 }

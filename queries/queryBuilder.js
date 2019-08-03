@@ -4,7 +4,8 @@ const {
   extractConditions,
   extractJoin,
   extractValues,
-  extractNewValues
+  extractNewValues,
+  extractPagination
 } = require('./queryHelpers')
 // Example Run
 //  generateFind(
@@ -22,14 +23,21 @@ const {
 //   { id: 5, count: { value: 3, operator: '>=', next: 'OR' }, ft: 33 },
 //   { 'user.id': 1, 'user.email': 1 }
 // )
-const generateFind = (tables, conditions = {}, columns = {}) => {
+const generateFind = (
+  tables,
+  conditions = {},
+  columns = {},
+  pagination = false
+) => {
   const { table, join } = tables
   const joinString = extractJoin(join)
   const columnString = extractColumns(columns)
   const conditionString = extractConditions(conditions)
+  const paginationString = extractPagination(pagination)
   const query = `SELECT ${columnString} FROM ${table} 
   ${joinString || conditionString}
-  ${joinString ? conditionString : ''} `
+  ${joinString ? conditionString : ''} 
+  ${paginationString}`
   return query
 }
 // Example Run
@@ -42,7 +50,8 @@ const generateCreate = (tables, columns = {}) => {
   const columnString = extractColumns(columns)
   const valueString = extractValues(columns)
   const query = `INSERT INTO ${table} (${columnString})
-  VALUES(${valueString})`
+  VALUES(${valueString})
+  RETURNING *`
   return query
 }
 // Example run
@@ -56,7 +65,8 @@ const generateUpdate = (tables, columns = {}, conditions = {}) => {
   const conditionString = extractConditions(conditions)
   const query = `UPDATE ${table}
   SET ${updateString}
-  ${conditionString}`
+  ${conditionString}
+  RETURNING *`
   return query
 }
 

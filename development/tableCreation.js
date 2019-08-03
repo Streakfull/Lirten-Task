@@ -4,7 +4,7 @@ CREATE TABLE app_user (
   name VARCHAR(50) NOT NULL,
   email VARCHAR(50) NOT NULL,
   password VARCHAR(255) NOT NULL,
-  is_suspended BOOLEAN,
+  is_suspended BOOLEAN DEFAULT FALSE,
   frozen BOOLEAN DEFAULT false,
   PRIMARY KEY (id),
   UNIQUE(email)

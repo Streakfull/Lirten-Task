@@ -1,6 +1,13 @@
 const moment = require('moment')
-
-const errorCreator = (statusCode, error, request, res) => {
+const { unknown } = require('../constants/statusCodes')
+// defining the message to be sent in all catches
+const unknownMsg = 'Something went wrong'
+const errorCreator = (
+  request,
+  res,
+  statusCode = unknown,
+  error = unknownMsg
+) => {
   const { headers } = request
   const { request_id } = headers
   res.set({
