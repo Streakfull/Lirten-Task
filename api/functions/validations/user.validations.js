@@ -45,11 +45,19 @@ const validateUpdateUser = request => {
   }
   return joi.validate(request, schema)
 }
+const validateFreeze = request => {
+  const schema = {
+    frozen: joi.boolean().required(),
+    userId: joi.number().required()
+  }
+  return joi.validate(request, schema)
+}
 
 module.exports = {
   validateSignUp,
   validateLogin,
   validateSuspension,
   validateSpecificView,
-  validateUpdateUser
+  validateUpdateUser,
+  validateFreeze
 }

@@ -10,7 +10,8 @@ const {
 
 // validations
 const {
-  validateApplication
+  validateApplication,
+  validateFreeze
 } = require('../functions/validations/application.validations')
 
 // functions
@@ -20,7 +21,8 @@ const {
   checkAcceptedApplicant,
   findApplication,
   apply,
-  acceptApplication
+  acceptApplication,
+  freezeApplicaiton
 } = require('../functions/application.functions')
 
 const apply_task = async (req, res) => {
@@ -34,7 +36,7 @@ const apply_task = async (req, res) => {
     const task = await findTask(taskId)
     if (!task) return errorCreator(req, res, entityNotFound, 'Task not found')
     const app = await findApplication(userId, taskId)
-    if (!app)
+    if (app)
       return errorCreator(req, res, alreadyApplied, 'User already applied')
     const acceptedApp = await checkAcceptedApplicant(taskId)
     if (acceptedApp)
@@ -75,5 +77,17 @@ const accept = async (req, res) => {
     return errorCreator(req, res)
   }
 }
+const freeze = async (req, res) => {
+  try {
+    const { frozen, userId, taskId } = req.body
+    const { error } = validateFreeze(req.body)
+    if (error)
+      return errorCreator(req, res, validation, error.details[0].message)
+    const app = await freezeApplicaiton(userId, taskId, frozen)
+    return send(app, req, res)
+  } catch (error) {
+    return errorCreator(req, res)
+  }
+}
 
-module.exports = { apply_task, accept }
+module.exports = { apply_task, accept, freeze }

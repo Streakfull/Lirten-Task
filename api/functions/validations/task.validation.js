@@ -15,11 +15,13 @@ const validateUserTaskView = request => {
   }
   return joi.validate(request, schema)
 }
-/* const validateFilter = request => {
+const validateFilter = request => {
   const schema = {
     value: joi.required(),
     exact: joi.boolean(),
-    sortBy: joi.boolean()
+    sortBy: joi.boolean(),
+    type: joi.string().valid(['ASC', 'DESC']),
+    lower: joi.boolean()
   }
   const keys = Object.keys(request)
   let error
@@ -28,7 +30,7 @@ const validateUserTaskView = request => {
     if (isValid.error) error = isValid.error
   })
   return error
-} */
+}
 
 const validateEditTask = request => {
   const schema = {
@@ -44,10 +46,26 @@ const validateFreezeEdit = request => {
   }
   return joi.validate(request, schema)
 }
+const validateFreeze = request => {
+  const schema = {
+    taskId: joi.number().required(),
+    frozen: joi.boolean().required()
+  }
+  return joi.validate(request, schema)
+}
+const validateUserId = request => {
+  const schema = {
+    userId: joi.number()
+  }
+  return joi.validate(request, schema)
+}
 
 module.exports = {
   validatePostTask,
   validateUserTaskView,
   validateEditTask,
-  validateFreezeEdit
+  validateFreezeEdit,
+  validateFreeze,
+  validateFilter,
+  validateUserId
 }

@@ -1,4 +1,9 @@
-const { find, create, updateMany } = require('../../queries/queryExecutioner')
+const {
+  find,
+  create,
+  updateMany,
+  freeze
+} = require('../../queries/queryExecutioner')
 
 const table = 'application'
 
@@ -31,10 +36,18 @@ const acceptApplication = async (userId, taskId) => {
   }
   return false
 }
+const freezeApplicaiton = async (userId, taskId, frozen) => {
+  const app = await freeze({ table }, frozen, {
+    user_id: userId,
+    task_id: taskId
+  })
+  return app
+}
 
 module.exports = {
   checkAcceptedApplicant,
   findApplication,
   apply,
-  acceptApplication
+  acceptApplication,
+  freezeApplicaiton
 }

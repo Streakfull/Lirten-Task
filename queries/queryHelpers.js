@@ -16,16 +16,22 @@ const extractColumns = columns => {
 }
 
 // gets condition string from condition object
-const extractConditions = conditions => {
+const extractConditions = (tableName, conditions, showFrozen = false) => {
+  console.log(conditions)
+  const baseCondition = showFrozen ? '' : `WHERE NOT ${tableName}.frozen`
+  const startingCondition = showFrozen
+    ? 'WHERE '
+    : `WHERE NOT ${tableName}.frozen AND`
   const conditionFields = Object.keys(conditions)
-  if (conditionFields.length === 0) return 'WHERE NOT frozen'
+  if (conditionFields.length === 0) return baseCondition
   const conditionString = conditionFields.reduce((string, condition, index) => {
     const { value, operator, next } = conditions[condition]
-    return `${string} ${condition}${operator || '='}${setString(value) ||
-      setString(conditions[condition])} ${
+    const valueInserted =
+      value !== undefined ? setString(value) : setString(conditions[condition])
+    return `${string} ${condition}${operator || '='}${valueInserted} ${
       index !== conditionFields.length - 1 ? next || 'AND' : ''
     }`
-  }, 'WHERE NOT frozen AND')
+  }, startingCondition)
   return conditionString
 }
 // gets join string from join object
@@ -72,9 +78,13 @@ const extractNewValues = columns => {
 const extractPagination = pagination => {
   if (!pagination) return ''
   const { limit, page } = pagination
-  console.log(limit, page, 'HIIII')
   const offset = limit * page
   return `OFFSET ${offset} LIMIT ${limit}`
+}
+const extractSort = sort => {
+  const keys = Object.keys(sort)
+  if (keys.length === 0) return ''
+  return `ORDER BY ${keys[0]} ${sort[keys[0]]}`
 }
 
 module.exports = {
@@ -83,5 +93,6 @@ module.exports = {
   extractJoin,
   extractValues,
   extractNewValues,
-  extractPagination
+  extractPagination,
+  extractSort
 }

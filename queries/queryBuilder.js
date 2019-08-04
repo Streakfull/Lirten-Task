@@ -5,7 +5,8 @@ const {
   extractJoin,
   extractValues,
   extractNewValues,
-  extractPagination
+  extractPagination,
+  extractSort
 } = require('./queryHelpers')
 // Example Run
 //  generateFind(
@@ -27,16 +28,19 @@ const generateFind = (
   tables,
   conditions = {},
   columns = {},
-  pagination = false
+  pagination = false,
+  sort = {}
 ) => {
   const { table, join } = tables
   const joinString = extractJoin(join)
   const columnString = extractColumns(columns)
-  const conditionString = extractConditions(conditions)
+  const conditionString = extractConditions(table, conditions)
   const paginationString = extractPagination(pagination)
+  const sortString = extractSort(sort)
   const query = `SELECT ${columnString} FROM ${table} 
   ${joinString || conditionString}
-  ${joinString ? conditionString : ''} 
+  ${joinString ? conditionString : ''}
+  ${sortString} 
   ${paginationString}`
   return query
 }
@@ -59,10 +63,15 @@ const generateCreate = (tables, columns = {}) => {
 //   { table: 'user' },
 //   { email: 'youssef@hotmail.com', name: 'youssef' }
 // )
-const generateUpdate = (tables, columns = {}, conditions = {}) => {
+const generateUpdate = (
+  tables,
+  columns = {},
+  conditions = {},
+  showFrozen = false
+) => {
   const { table } = tables
   const updateString = extractNewValues(columns)
-  const conditionString = extractConditions(conditions)
+  const conditionString = extractConditions(table, conditions, showFrozen)
   const query = `UPDATE ${table}
   SET ${updateString}
   ${conditionString}
@@ -71,7 +80,7 @@ const generateUpdate = (tables, columns = {}, conditions = {}) => {
 }
 const generateDelete = (tables, conditions) => {
   const { table } = tables
-  const conditionString = extractConditions(conditions)
+  const conditionString = extractConditions(table, conditions)
   const query = `DELETE FROM ${table}
   ${conditionString}
   RETURNING *`

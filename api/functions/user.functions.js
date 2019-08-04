@@ -1,7 +1,12 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const { find, create, updateMany } = require('../../queries/queryExecutioner')
+const {
+  find,
+  create,
+  updateMany,
+  freeze
+} = require('../../queries/queryExecutioner')
 const { tokenKey } = require('../../config/keys')
 
 const table = 'app_user'
@@ -34,8 +39,9 @@ const generateToken = user => {
   const payload = { id, name, email }
   return jwt.sign(payload, tokenKey)
 }
-const findUser = async id => {
-  const user = await find({ table }, { id })
+const findUser = async (id, showSuspended = false) => {
+  const query = showSuspended ? { id } : { id, is_suspended: false }
+  const user = await find({ table }, query)
   if (user.length > 0) return user[0]
   return false
 }
@@ -62,6 +68,10 @@ const updateUser = async (name, email, userId) => {
   const user = await updateMany({ table }, { name, email }, { id: userId })
   return user
 }
+const freezeUser = async (userId, frozen) => {
+  const user = await freeze({ table }, frozen, { id: userId })
+  return user
+}
 
 module.exports = {
   findEmail,
@@ -73,5 +83,6 @@ module.exports = {
   checkSuspension,
   suspendUser,
   findAllUsers,
-  updateUser
+  updateUser,
+  freezeUser
 }

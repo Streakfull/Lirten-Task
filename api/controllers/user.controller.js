@@ -11,7 +11,8 @@ const {
   validateLogin,
   validateSuspension,
   validateSpecificView,
-  validateUpdateUser
+  validateUpdateUser,
+  validateFreeze
 } = require('../functions/validations/user.validations')
 const {
   validateViewAll
@@ -26,7 +27,8 @@ const {
   checkSuspension,
   suspendUser,
   findAllUsers,
-  updateUser
+  updateUser,
+  freezeUser
 } = require('../functions/user.functions')
 
 const sign_up = async (req, res) => {
@@ -78,7 +80,7 @@ const suspend = async (req, res) => {
     const { error } = validateSuspension(req.body)
     if (error)
       return errorCreator(req, res, validation, error.details[0].message)
-    const user = await findUser(userId)
+    const user = await findUser(userId, true)
     if (!user) {
       return errorCreator(req, res, entityNotFound, 'User not found')
     }
@@ -107,15 +109,13 @@ const view_all = async (req, res) => {
 
 const view_specific = async (req, res) => {
   try {
-    console.log('hi')
     const { userId } = req.body
     const { error } = validateSpecificView(req.body)
     if (error)
       return errorCreator(req, res, validation, error.details[0].message)
-    const user = await findUser(userId)
+    const user = await findUser(userId, true)
     return send(user, req, res)
   } catch (error) {
-    console.log(error)
     return errorCreator(req, res)
   }
 }
@@ -142,9 +142,28 @@ const update = async (req, res) => {
     const newUser = await updateUser(name, email, userId)
     return send(newUser, req, res)
   } catch (error) {
-    console.log(error)
+    return errorCreator(req, res)
+  }
+}
+const freeze = async (req, res) => {
+  try {
+    const { userId, frozen } = req.body
+    const { error } = validateFreeze(req.body)
+    if (error)
+      return errorCreator(req, res, validation, error.details[0].message)
+    const frozenUser = await freezeUser(userId, frozen)
+    return send(frozenUser, req, res)
+  } catch (e) {
     return errorCreator(req, res)
   }
 }
 
-module.exports = { sign_up, log_in, suspend, view_all, view_specific, update }
+module.exports = {
+  sign_up,
+  log_in,
+  suspend,
+  view_all,
+  view_specific,
+  update,
+  freeze
+}

@@ -32,6 +32,12 @@ const unInvitedUser = 'E015'
 const unknown = 'E00X'
 // user already applied
 const alreadyApplied = 'E016'
+// user is already invited
+const alreadyInvited = 'E017'
+// task is already added to the meeting
+const alreadyAdded = 'E018'
+// unauthorized
+const unauthorized = 'E019'
 
 module.exports = {
   emailExists,
@@ -50,5 +56,8 @@ module.exports = {
   unrelatedTask,
   unInvitedUser,
   unknown,
-  alreadyApplied
+  alreadyApplied,
+  alreadyInvited,
+  alreadyAdded,
+  unauthorized
 }

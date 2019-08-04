@@ -1,7 +1,12 @@
 const moment = require('moment')
 
 const taskTable = 'task'
-const { find, create, updateMany } = require('../../queries/queryExecutioner')
+const {
+  find,
+  create,
+  updateMany,
+  freeze
+} = require('../../queries/queryExecutioner')
 
 const createTask = async (userId, name) => {
   const task = await create({ table: taskTable }, { user_id: userId, name })
@@ -48,13 +53,46 @@ const freezeTask = async (taskId, frozen) => {
   return task
 }
 
-const endTask = async taskId => {
-  const task = await updateMany(
-    { table: taskTable },
-    { end_date: moment().format() },
-    { id: taskId }
-  )
+const endTask = taskId => {
+  const query = {
+    tables: { table: taskTable },
+    type: 'update',
+    columns: { end_date: moment().format() },
+    conditions: { id: taskId }
+  }
+  return query
+}
+const freezeTaskAll = async (taskId, frozen) => {
+  const task = await freeze({ table: taskTable }, frozen, { id: taskId })
   return task
+}
+const filterQuery = async (userId, filterObject) => {
+  const keys = Object.keys(filterObject)
+  let conditionQuery = {}
+  let sortFound = false
+  const sort = {}
+  keys.forEach(key => {
+    const { value, exact, sortBy, lower, type } = filterObject[key]
+    let query
+    if (key === 'isDone') query = { end_date: { value: null, operator: '!=' } }
+    else if (exact) query = { [key]: value }
+    else if (lower) query = { [key]: { value, operator: '<=' } }
+    else query = { [key]: { value, operator: '>=' } }
+    if (sortBy && !sortFound) {
+      const sortType = type || 'DESC'
+      sort[key] = sortType
+      sortFound = true
+    }
+    conditionQuery = { ...conditionQuery, ...query }
+  })
+  const result = await find(
+    { table: taskTable },
+    conditionQuery,
+    {},
+    false,
+    sort
+  )
+  return result
 }
 
 module.exports = {
@@ -66,5 +104,7 @@ module.exports = {
   editTask,
   checkStatus,
   freezeTask,
-  endTask
+  endTask,
+  freezeTaskAll,
+  filterQuery
 }

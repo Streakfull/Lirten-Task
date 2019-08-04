@@ -3,23 +3,44 @@ const {
   create,
   updateMany,
   deleteMany,
-  createMany
+  createMany,
+  freeze
 } = require('../../queries/queryExecutioner')
 
 const meetingTable = 'meeting'
 const meetingTask = 'meeting_task'
-const meetingAttendance = 'meeting_user'
+const meetingAttendance = 'meeting_attendance'
 
 const createMeeting = async (userId, description) => {
   const meeting = await create(
     { table: meetingTable },
-    { user_id: userId, description }
+    { organiser_id: userId, description }
   )
   return meeting
 }
+const { findUser } = require('./user.functions')
+const { findTask } = require('./task.functions')
 
 // checks all users are accepted in the meeting tasks
-const checkUserMeetingRelated = async (userIds, meetingId) => {
+const checkUserMeetingRelated = async (userIds, meeting) => {
+  const meetingId = meeting.id
+  //oraganiser
+  let allUsersRelated = [meeting.organiser_id]
+  // task owners
+  const tasks = await find(
+    {
+      table: meetingTask,
+      join: {
+        tables: ['task'],
+        on: {
+          'meeting_task.task_id': 'task.id'
+        }
+      }
+    },
+    { meeting_id: meetingId, 'task.frozen': false },
+    { 'task.user_id': 1 }
+  )
+  // accepted applicants
   const meetingTasks = await find(
     {
       table: meetingTask,
@@ -30,12 +51,15 @@ const checkUserMeetingRelated = async (userIds, meetingId) => {
         }
       }
     },
-    { accepted: true, meeting_id: meetingId },
+    { accepted: true, meeting_id: meetingId, 'application.frozen': false },
     { 'application.user_id': 1 }
   )
+  const usersFound = tasks.concat(meetingTasks).map(user => user.user_id)
+  allUsersRelated = allUsersRelated.concat(usersFound)
+  console.log(allUsersRelated)
   let allRelated = true
   userIds.forEach(id => {
-    if (!meetingTasks.includes(id)) allRelated = false
+    if (!allUsersRelated.includes(id)) allRelated = false
   })
   return allRelated
 }
@@ -81,20 +105,26 @@ const findUserMeetings = async userId => {
   return userMeetings
 }
 
-const inviteUsers = async (userIds, removed) => {
-  const userIdsQuery = userIds.map(userId => ({ id: userId }))
-  let data
-  if (removed)
-    data = await deleteMany({ table: meetingAttendance }, userIdsQuery)
-  else data = await createMany({ table: meetingAttendance }, userIdsQuery)
+const inviteUsers = async (meetingId, userIds, removed) => {
+  const userIdsQuery = userIds.map(userId => ({
+    user_id: userId,
+    meeting_id: meetingId
+  }))
+  const data = removed
+    ? await deleteMany({ table: meetingAttendance }, userIdsQuery)
+    : await createMany({ table: meetingAttendance }, userIdsQuery)
   return data
 }
 
-const setMeetingTasks = async (userIds, removed) => {
-  const userIdsQuery = userIds.map(userId => ({ id: userId }))
-  let data
-  if (removed) data = await deleteMany({ table: meetingTask }, userIdsQuery)
-  else data = await createMany({ table: meetingTask }, userIdsQuery)
+const setMeetingTasks = async (meetingId, taskIds) => {
+  const query = taskIds.map(id => ({
+    meeting_id: meetingId,
+    task_id: id
+  }))
+
+  const data = await createMany({ table: meetingTask }, query)
+  console.log(data, 'DATA')
+  return data
 }
 
 const confirmAttendance = async (userId, meetingId) => {
@@ -103,5 +133,69 @@ const confirmAttendance = async (userId, meetingId) => {
     { confirmed: true },
     { user_id: userId, meeting_id: meetingId }
   )
-  return confirmedUser
+  if (confirmedUser.length > 0) return confirmedUser
+  return false
+}
+const checkAlreadyInvited = async (userIds, meetingId) => {
+  const invitedUsers = await find(
+    { table: meetingAttendance },
+    { meeting_id: meetingId }
+  )
+  const invitedIds = invitedUsers.map(user => user.user_id)
+  let alreadyInvited = false
+  userIds.forEach(id => {
+    if (invitedIds.includes(id)) alreadyInvited = true
+  })
+  return alreadyInvited
+}
+// to if the meeting already has theses tasks
+const checkAlreadyAdded = async (taskIds, meetingId) => {
+  const addedTasks = await find(
+    { table: meetingTask },
+    { meeting_id: meetingId }
+  )
+  const tasks = addedTasks.map(task => task.task_id)
+  let alreadyAdded = false
+  taskIds.forEach(id => {
+    if (tasks.includes(id)) alreadyAdded = true
+  })
+  return alreadyAdded
+}
+// check that all users are found
+const checkValidUsers = async userIds => {
+  const promises = []
+  userIds.forEach(id => promises.push(findUser(id)))
+  const foundUsers = await Promise.all(promises)
+  return !foundUsers.includes(false)
+}
+
+const checkValidTasks = async taskIds => {
+  const promises = []
+  taskIds.forEach(id => promises.push(findTask(id)))
+  const foundTasks = await Promise.all(promises)
+  return !foundTasks.includes(false)
+}
+const freezeMeeting = async (meetingId, frozen) => {
+  const meeting = await freeze({ table: meetingTable }, frozen, {
+    id: meetingId
+  })
+  return meeting
+}
+
+module.exports = {
+  createMeeting,
+  checkUserMeetingRelated,
+  checkMeetingConfirmed,
+  editMeeting,
+  findAllMeetings,
+  findMeeting,
+  findUserMeetings,
+  inviteUsers,
+  setMeetingTasks,
+  confirmAttendance,
+  checkAlreadyInvited,
+  checkAlreadyAdded,
+  checkValidUsers,
+  checkValidTasks,
+  freezeMeeting
 }

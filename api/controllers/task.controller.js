@@ -13,7 +13,10 @@ const {
   validatePostTask,
   validateUserTaskView,
   validateEditTask,
-  validateFreezeEdit
+  validateFreezeEdit,
+  validateFreeze,
+  validateFilter,
+  validateUserId
 } = require('../functions/validations/task.validation')
 const { findUser } = require('../functions/user.functions')
 const {
@@ -29,7 +32,9 @@ const {
   checkEditFrozen,
   editTask,
   freezeTask,
-  checkStatus
+  checkStatus,
+  freezeTaskAll,
+  filterQuery
 } = require('../functions/task.functions')
 
 const post_task = async (req, res) => {
@@ -69,19 +74,29 @@ const view_user = async (req, res) => {
     return errorCreator(req, res)
   }
 }
-// const filter = async (req, res) => {
-//   const { page, limit, ...filters } = req.body
-//   const { error } = validateViewAll({ page, limit })
-//   if (error) return errorCreator(req, res, validation, error.details[0].message)
-//   const checkFilterError = validateFilter(filters)
-//   if (checkFilterError)
-//     return errorCreator(
-//       req,
-//       res,
-//       validation,
-//       checkFilterError[0].detail.message
-//     )
-// }
+const filter = async (req, res) => {
+  const { page, limit, userId, ...filters } = req.body
+  const { error } = validateViewAll({ page, limit })
+  if (error) return errorCreator(req, res, validation, error.details[0].message)
+  const validUserId = validateUserId({ userId })
+  if (validUserId.error)
+    return errorCreator(
+      req,
+      res,
+      validation,
+      validUserId.error.details[0].message
+    )
+  const checkFilterError = validateFilter(filters)
+  if (checkFilterError)
+    return errorCreator(
+      req,
+      res,
+      validation,
+      checkFilterError.details[0].message
+    )
+  const result = await filterQuery(userId, filters)
+  return send(result, req, res)
+}
 
 const edit = async (req, res) => {
   try {
@@ -118,5 +133,25 @@ const freeze = async (req, res) => {
     return errorCreator(req, res)
   }
 }
+const freeze_all = async (req, res) => {
+  try {
+    const { taskId, frozen } = req.body
+    const { error } = validateFreeze(req.body)
+    if (error)
+      return errorCreator(req, res, validation, error.details[0].message)
+    const frozenTask = await freezeTaskAll(taskId, frozen)
+    return send(frozenTask, req, res)
+  } catch (e) {
+    return errorCreator(req, res)
+  }
+}
 
-module.exports = { post_task, view_all, view_user, edit, freeze }
+module.exports = {
+  post_task,
+  view_all,
+  view_user,
+  edit,
+  freeze,
+  freeze_all,
+  filter
+}
