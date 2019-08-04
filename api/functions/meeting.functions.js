@@ -7,6 +7,10 @@ const {
   freeze
 } = require('../../queries/queryExecutioner')
 
+const { getCache, setCache, removeFromCache } = require('../cache')
+const { findUser } = require('./user.functions')
+const { findTask } = require('./task.functions')
+
 const meetingTable = 'meeting'
 const meetingTask = 'meeting_task'
 const meetingAttendance = 'meeting_attendance'
@@ -16,10 +20,9 @@ const createMeeting = async (userId, description) => {
     { table: meetingTable },
     { organiser_id: userId, description }
   )
+  removeFromCache('meetings')
   return meeting
 }
-const { findUser } = require('./user.functions')
-const { findTask } = require('./task.functions')
 
 // checks all users are accepted in the meeting tasks
 const checkUserMeetingRelated = async (userIds, meeting) => {
@@ -56,7 +59,6 @@ const checkUserMeetingRelated = async (userIds, meeting) => {
   )
   const usersFound = tasks.concat(meetingTasks).map(user => user.user_id)
   allUsersRelated = allUsersRelated.concat(usersFound)
-  console.log(allUsersRelated)
   let allRelated = true
   userIds.forEach(id => {
     if (!allUsersRelated.includes(id)) allRelated = false
@@ -82,11 +84,18 @@ const editMeeting = async (meetingId, description) => {
     { description },
     { id: meetingId }
   )
+  removeFromCache('meetings')
   return newMeeting[0]
 }
 
 const findAllMeetings = async pagination => {
+  const { page, limit } = pagination
+  const cachedMeetings = getCache('meetings', page, limit)
+  if (cachedMeetings) {
+    return cachedMeetings
+  }
   const meetings = await find({ table: meetingTable }, {}, {}, pagination)
+  setCache('meetings', page, limit, meetings)
   return meetings
 }
 const findMeeting = async meetingId => {
@@ -113,6 +122,7 @@ const inviteUsers = async (meetingId, userIds, removed) => {
   const data = removed
     ? await deleteMany({ table: meetingAttendance }, userIdsQuery)
     : await createMany({ table: meetingAttendance }, userIdsQuery)
+  removeFromCache('meetings')
   return data
 }
 
@@ -123,7 +133,7 @@ const setMeetingTasks = async (meetingId, taskIds) => {
   }))
 
   const data = await createMany({ table: meetingTask }, query)
-  console.log(data, 'DATA')
+  removeFromCache('meetings')
   return data
 }
 

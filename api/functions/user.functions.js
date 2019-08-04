@@ -8,6 +8,7 @@ const {
   freeze
 } = require('../../queries/queryExecutioner')
 const { tokenKey } = require('../../config/keys')
+const { getCache, setCache, removeFromCache } = require('../cache')
 
 const table = 'app_user'
 
@@ -28,6 +29,7 @@ const hashPassword = password => {
 }
 const createUser = async (name, email, password) => {
   const user = await create({ table }, { name, email, password })
+  removeFromCache('users')
   return user
 }
 
@@ -58,18 +60,27 @@ const suspendUser = async (userId, isSuspended) => {
     { is_suspended: isSuspended },
     { id: userId }
   )
+  removeFromCache('users')
   return user
 }
 const findAllUsers = async pagination => {
+  const { page, limit } = pagination
+  const cachedUsers = getCache('users', page, limit)
+  if (cachedUsers) {
+    return cachedUsers
+  }
   const users = await find({ table }, {}, {}, pagination)
+  setCache('users', page, limit, users)
   return users
 }
 const updateUser = async (name, email, userId) => {
   const user = await updateMany({ table }, { name, email }, { id: userId })
+  removeFromCache('users')
   return user
 }
 const freezeUser = async (userId, frozen) => {
   const user = await freeze({ table }, frozen, { id: userId })
+  removeFromCache('users')
   return user
 }
 

@@ -5,7 +5,8 @@ const {
   entityNotFound,
   validation,
   editFrozen,
-  wrongStatus
+  wrongStatus,
+  alreadyAccepted
 } = require('../constants/statusCodes')
 
 // validations
@@ -36,6 +37,8 @@ const {
   freezeTaskAll,
   filterQuery
 } = require('../functions/task.functions')
+
+const { checkAcceptedApplicant } = require('../functions/application.functions')
 
 const post_task = async (req, res) => {
   try {
@@ -107,6 +110,10 @@ const edit = async (req, res) => {
     const task = await findTask(taskId)
     if (!task) return errorCreator(req, res, entityNotFound, 'Task not found')
     const frozen = checkEditFrozen(task)
+    const acceptedCheck = await checkAcceptedApplicant(taskId)
+    if (acceptedCheck)
+      return errorCreator(req, res, alreadyAccepted, 'Task cannot be edited')
+
     if (frozen)
       return errorCreator(req, res, editFrozen, 'Task cannot be edited')
     const newTask = await editTask(taskId, name)
