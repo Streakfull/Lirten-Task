@@ -1,43 +1,43 @@
 // Email already exists
-const emailExists = 'E001'
+const emailExists = '0001'
 // Wrong email or password
-const wrongInfo = 'E002'
+const wrongInfo = '0002'
 // Entity not found
-const entityNotFound = 'E003'
+const entityNotFound = '0003'
 // validation
-const validation = 'E004'
+const validation = '0004'
 // user already suspended
-const suspended = 'E005'
+const suspended = '0005'
 // user already unsuspended
-const unsuspended = 'E006'
+const unsuspended = '0006'
 // task edit frozen
-const editFrozen = 'E007'
+const editFrozen = '0007'
 // task already has this status
-const wrongStatus = 'E008'
+const wrongStatus = '0008'
 // task not edit frozen
-const notEditFrozen = 'E009'
+const notEditFrozen = '0009'
 // task has an accepted app
-const alreadyAccepted = 'E010'
+const alreadyAccepted = '0010'
 // user doesn't belong to task
-const unrelatedUserTask = 'E011'
+const unrelatedUserTask = '0011'
 // user is not related to meeting
-const unrelatedUserMeeting = 'E012'
+const unrelatedUserMeeting = '0012'
 // meeting is already confirmed
-const meetingConfirmed = 'E013'
+const meetingConfirmed = '0013'
 // Unrelated task
-const unrelatedTask = 'E014'
+const unrelatedTask = '0014'
 // user is not invited to the meeting
-const unInvitedUser = 'E015'
+const unInvitedUser = '0015'
 // Unknown error
-const unknown = 'E00X'
+const unknown = '000X'
 // user already applied
-const alreadyApplied = 'E016'
+const alreadyApplied = '0016'
 // user is already invited
-const alreadyInvited = 'E017'
+const alreadyInvited = '0017'
 // task is already added to the meeting
-const alreadyAdded = 'E018'
+const alreadyAdded = '0018'
 // unauthorized
-const unauthorized = 'E019'
+const unauthorized = '0019'
 
 module.exports = {
   emailExists,
