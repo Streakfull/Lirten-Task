@@ -84,7 +84,13 @@ const filterQuery = async (userId, filterObject) => {
   keys.forEach(key => {
     const { value, exact, sortBy, lower, type } = filterObject[key]
     let query
-    if (key === 'isDone') query = { end_date: { value: null, operator: '!=' } }
+    if (key === 'isDone')
+      query = {
+        end_date: {
+          value: null,
+          operator: filterObject.isDone.value ? '!=' : '='
+        }
+      }
     else if (exact) query = { [key]: value }
     else if (lower) query = { [key]: { value, operator: '<=' } }
     else query = { [key]: { value, operator: '>=' } }
@@ -95,6 +101,7 @@ const filterQuery = async (userId, filterObject) => {
     }
     conditionQuery = { ...conditionQuery, ...query }
   })
+  if (userId) conditionQuery.user_id = userId
   const result = await find(
     { table: taskTable },
     conditionQuery,

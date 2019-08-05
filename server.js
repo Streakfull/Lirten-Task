@@ -37,7 +37,7 @@ app.use('/api/v1/meetings', meetings)
 setListener(io)
 
 // Tables and populate
-sync()
+// sync()
 
 const port = process.env.PORT || 5000
 const serverPort = 80
