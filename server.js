@@ -6,6 +6,7 @@ const dbInit = require('./config/DBConfig')
 const logger = require('./api/middleware/logger')
 const validateHeader = require('./api/middleware/validateHeader')
 const setListener = require('./api/sockets')
+const { sync } = require('./queries/queryExecutioner')
 
 const app = express()
 const server = require('http').Server(express)
@@ -32,11 +33,12 @@ app.use('/api/v1/applications', applications)
 app.use('/api/v1/submissions', submissions)
 app.use('/api/v1/meetings', meetings)
 
-//socket.io
+// socket.io
 setListener(io)
 
 // Tables and populate
-// pgClient.query(tableCreation)
+sync()
+
 const port = process.env.PORT || 5000
 const serverPort = 80
 server.listen(serverPort)

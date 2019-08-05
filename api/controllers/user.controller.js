@@ -114,6 +114,7 @@ const view_specific = async (req, res) => {
     if (error)
       return errorCreator(req, res, validation, error.details[0].message)
     const user = await findUser(userId, true)
+    if (!user) return errorCreator(req, res, entityNotFound, 'User not found')
     return send(user, req, res)
   } catch (error) {
     return errorCreator(req, res)

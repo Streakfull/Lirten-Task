@@ -22,7 +22,7 @@ router.post('/setTask', verify, set_meeting_tasks)
 
 router.post('/edit', verify, edit)
 
-router.post('/', view_all)
+router.post('/viewAll', view_all)
 
 router.post('/specific', specific)
 

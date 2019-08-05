@@ -21,6 +21,7 @@ const createMeeting = async (userId, description) => {
     { organiser_id: userId, description }
   )
   removeFromCache('meetings')
+  console.log(meeting)
   return meeting
 }
 

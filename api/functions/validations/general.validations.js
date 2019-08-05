@@ -9,7 +9,7 @@ const validateViewAll = request => {
 }
 const validateHeader = request => {
   const schema = {
-    request_id: joi.number().required(),
+    request_id: joi.string().required(),
     timestamp: joi.date().required(),
     servicename: joi.string().required()
   }

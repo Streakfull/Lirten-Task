@@ -7,6 +7,9 @@ const {
 
 const { pgClient } = require('../config/DBConfig')
 
+const droppedTables = require('../development/droppedTables')
+const tableCreation = require('../development/tableCreation')
+
 const find = async (tables, conditions, columns, pagination, sort) => {
   const query = generateFind(tables, conditions, columns, pagination, sort)
   console.log(`EXECUTING ${query}`)
@@ -23,6 +26,7 @@ const create = async (tables, columns) => {
     await pgClient.query('COMMIT')
     return rows
   } catch (e) {
+    console.log(e)
     console.log('Something went wrong,committing rollback')
     await pgClient.query('ROLLBACK')
     return false
@@ -121,6 +125,14 @@ const acidExecute = async queries => {
     return false
   }
 }
+const sync = async () => {
+  const query = droppedTables.reduce(
+    (string, table) => `${string} DROP TABLE IF EXISTS ${table};`,
+    ''
+  )
+  await pgClient.query(query)
+  await pgClient.query(tableCreation)
+}
 
 module.exports = {
   find,
@@ -129,5 +141,6 @@ module.exports = {
   createMany,
   deleteMany,
   acidExecute,
-  freeze
+  freeze,
+  sync
 }

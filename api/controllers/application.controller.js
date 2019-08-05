@@ -2,7 +2,7 @@ const { errorCreator, send } = require('../functions/general.functions')
 
 // error codes
 const {
-  alreadyAccpted,
+  alreadyAccepted,
   validation,
   entityNotFound,
   alreadyApplied
@@ -43,7 +43,7 @@ const apply_task = async (req, res) => {
       return errorCreator(
         req,
         res,
-        alreadyApplied,
+        alreadyAccepted,
         'This task has an accepted applicant'
       )
     const newApp = await apply(userId, taskId)
@@ -67,7 +67,7 @@ const accept = async (req, res) => {
       return errorCreator(
         req,
         res,
-        alreadyAccpted,
+        alreadyAccepted,
         'This task has an accepted applicant'
       )
     const newApp = await acceptApplication(userId, taskId)
